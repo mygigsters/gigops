@@ -1,0 +1,65 @@
+# GigOps Profile Configuration
+# Copy this file to config/profile.yml and fill in your details.
+# This file defines who you are — GigOps uses it to evaluate gig fit and generate proposals.
+
+name: "Jane Smith"
+title: "Full-Stack Developer"
+
+skills:
+  primary:
+    - React
+    - Node.js
+    - TypeScript
+  secondary:
+    - Python
+    - AWS
+    - Docker
+    - PostgreSQL
+
+experience_years: 5
+
+hourly_rate:
+  minimum: 60       # Absolute minimum you'll accept (AUD/USD/GBP)
+  target: 85        # Your ideal rate
+  currency: AUD     # AUD, USD, GBP, etc.
+
+availability:
+  hours_per_week: 30
+  timezone: Australia/Melbourne
+
+location: Melbourne, AU
+
+# Platforms you're active on
+platforms:
+  - upwork
+  - airtasker
+
+portfolio_url: https://janesmith.dev
+
+bio: |
+  Full-stack developer specialising in React and Node.js, with 5 years building
+  production web apps for startups and SMEs. I focus on clean, maintainable code
+  and clear communication throughout the project.
+
+preferences:
+  remote_only: true
+  min_project_value: 500     # In your currency
+  max_project_duration: 3months
+  avoid:
+    - crypto
+    - adult content
+    - gambling
+
+# Use these to prove you're the right person — AI will reference them in proposals
+proof_points:
+  - "Built payment platform processing $2M/month for fintech startup"
+  - "Reduced page load time 70% for e-commerce client (1.2M monthly visitors)"
+  - "Led team of 5 engineers at Series A startup, shipped 3 major features in 6 months"
+  - "5-star rating across 47 completed projects on Upwork"
+
+career_story: |
+  Started freelancing in 2019 after leaving corporate consulting, initially taking
+  anything I could get. Over time, I got selective — focusing on React/Node work
+  where I can deliver real business outcomes, not just write code. Now I work with
+  3-4 clients at a time, mostly startups and growing SMEs who need a senior dev
+  without the full-time overhead.

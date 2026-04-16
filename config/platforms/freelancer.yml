@@ -1,0 +1,22 @@
+name: freelancer
+base_url: https://www.freelancer.com
+search_url: https://www.freelancer.com/jobs/
+
+selectors:
+  listing_card: ".JobSearchCard-item"
+  title: ".JobSearchCard-primary-heading"
+  description: ".JobSearchCard-primary-description"
+  budget: ".JobSearchCard-primary-price"
+  client_name: ".JobSearchCard-client-name"
+  client_rating: ".JobSearchCard-client-rating"
+  posted_date: ".JobSearchCard-primary-timeFormatted"
+  skills_required: ".JobSearchCard-primary-tags .tag"
+  proposals_count: ".JobSearchCard-secondary-entry"
+
+auth_required: false
+rate_limit_ms: 2000
+
+notes: |
+  Freelancer.com is global with USD pricing.
+  Public job listings are accessible without auth.
+  May require Cloudflare bypass in some regions — set headless: false if needed.

@@ -1,0 +1,22 @@
+name: airtasker
+base_url: https://www.airtasker.com
+search_url: https://www.airtasker.com/tasks/
+
+selectors:
+  listing_card: "[data-ui='task-card']"
+  title: "[data-ui='task-title'], h1"
+  description: "[data-ui='task-description']"
+  budget: "[data-ui='task-budget'], .task-price"
+  client_name: "[data-ui='poster-name']"
+  client_rating: ".star-rating-score"
+  posted_date: "time"
+  skills_required: ".task-tags .tag"
+  proposals_count: ".offer-count"
+
+auth_required: false
+rate_limit_ms: 1500
+
+notes: |
+  Airtasker is primarily AUD-based and Australia/NZ focused.
+  Tasks are public. No auth required for browsing.
+  Rate limits are enforced, keep rate_limit_ms >= 1500.

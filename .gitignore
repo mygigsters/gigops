@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+config/profile.yml
+pipeline/*.jsonl
+!pipeline/.gitkeep
+*.log
+.DS_Store
+dashboard/gigops-dashboard

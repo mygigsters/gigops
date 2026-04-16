@@ -1,0 +1,41 @@
+# GigOps Saved Searches
+# Configure your recurring searches per platform.
+# GigOps scan command uses these when no --keywords flag is passed.
+
+searches:
+  - name: "React/Node on Upwork"
+    platform: upwork
+    keywords:
+      - React
+      - Node.js
+    skills:
+      - TypeScript
+      - PostgreSQL
+    min_budget: 50
+    location: null  # Remote
+    limit: 20
+    schedule: daily  # daily | weekly | manual
+
+  - name: "Web Dev on Airtasker AU"
+    platform: airtasker
+    keywords:
+      - website
+      - web developer
+      - wordpress
+    location: Australia
+    min_budget: 200
+    limit: 15
+    schedule: daily
+
+  - name: "Freelancer Quick Jobs"
+    platform: freelancer
+    keywords:
+      - React developer
+      - frontend developer
+    skills:
+      - React
+      - JavaScript
+    min_budget: 100
+    max_budget: 5000
+    limit: 10
+    schedule: weekly

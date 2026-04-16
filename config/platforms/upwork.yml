@@ -1,0 +1,22 @@
+name: upwork
+base_url: https://www.upwork.com
+search_url: https://www.upwork.com/search/jobs/
+
+selectors:
+  listing_card: "[data-test='job-tile']"
+  title: "[data-test='job-title'], h2.job-title"
+  description: "[data-test='job-description-text']"
+  budget: "[data-test='budget']"
+  client_name: "[data-test='client-name']"
+  client_rating: "[data-test='rating']"
+  posted_date: "[data-test='posted-on']"
+  skills_required: "[data-test='skills'] .badge"
+  proposals_count: "[data-test='proposals-count']"
+
+auth_required: false
+rate_limit_ms: 2000
+
+notes: |
+  Upwork's search is accessible without auth for browsing.
+  Detailed project data may require login for some fields.
+  Use headless: false if encountering bot detection.
