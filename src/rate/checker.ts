@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { UserProfile, getEnv } from '../utils/config.js';
+import { UserProfile, getEnv } from '../utils/config';
 
 export interface RateCheckInput {
   skill: string;

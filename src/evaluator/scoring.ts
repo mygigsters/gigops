@@ -1,5 +1,5 @@
-import { GigListing } from '../scrapers/base.js';
-import { UserProfile } from '../utils/config.js';
+import { GigListing } from '../scrapers/base';
+import { UserProfile } from '../utils/config';
 
 export interface DimensionScore {
   name: string;

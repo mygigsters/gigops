@@ -10,13 +10,13 @@ import path from 'path';
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { loadProfile, detectPlatform } from '../src/utils/config.js';
-import { closeBrowser } from '../src/utils/browser.js';
-import { evaluateGig } from '../src/evaluator/evaluator.js';
-import { PipelineTracker } from '../src/pipeline/tracker.js';
-import { UpworkScraper } from '../src/scrapers/upwork.js';
-import { AirtaskerScraper } from '../src/scrapers/airtasker.js';
-import { FreelancerScraper } from '../src/scrapers/freelancer.js';
+import { loadProfile, detectPlatform } from '../src/utils/config';
+import { closeBrowser } from '../src/utils/browser';
+import { evaluateGig } from '../src/evaluator/evaluator';
+import { PipelineTracker } from '../src/pipeline/tracker';
+import { UpworkScraper } from '../src/scrapers/upwork';
+import { AirtaskerScraper } from '../src/scrapers/airtasker';
+import { FreelancerScraper } from '../src/scrapers/freelancer';
 
 interface BatchResult {
   url: string;

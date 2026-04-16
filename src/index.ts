@@ -3,18 +3,18 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
 import boxen from 'boxen';
-import { loadProfile, detectPlatform } from './utils/config.js';
-import { closeBrowser } from './utils/browser.js';
-import { UpworkScraper } from './scrapers/upwork.js';
-import { AirtaskerScraper } from './scrapers/airtasker.js';
-import { FreelancerScraper } from './scrapers/freelancer.js';
-import { evaluateGig } from './evaluator/evaluator.js';
-import { generateProposal } from './proposal/generator.js';
-import { PipelineTracker } from './pipeline/tracker.js';
-import { checkIntegrity, deduplicatePipeline } from './pipeline/integrity.js';
-import { checkMarketRate } from './rate/checker.js';
-import { analyzeClient } from './client/intel.js';
-import { SearchConfig } from './scrapers/base.js';
+import { loadProfile, detectPlatform } from './utils/config';
+import { closeBrowser } from './utils/browser';
+import { UpworkScraper } from './scrapers/upwork';
+import { AirtaskerScraper } from './scrapers/airtasker';
+import { FreelancerScraper } from './scrapers/freelancer';
+import { evaluateGig } from './evaluator/evaluator';
+import { generateProposal } from './proposal/generator';
+import { PipelineTracker } from './pipeline/tracker';
+import { checkIntegrity, deduplicatePipeline } from './pipeline/integrity';
+import { checkMarketRate } from './rate/checker';
+import { analyzeClient } from './client/intel';
+import { SearchConfig } from './scrapers/base';
 
 // Banner
 const BANNER = chalk.cyan(
@@ -282,7 +282,8 @@ pipeline
     }
 
     for (const e of entries) {
-      const statusColor = { won: chalk.green, applied: chalk.cyan, interviewing: chalk.yellow, skipped: chalk.dim, lost: chalk.red }[e.status] ?? chalk.white;
+      const statusColors: Record<string, typeof chalk.green> = { won: chalk.green, applied: chalk.cyan, interviewing: chalk.yellow, skipped: chalk.dim, lost: chalk.red, discovered: chalk.blue, evaluated: chalk.magenta, proposal_drafted: chalk.cyan, withdrawn: chalk.gray };
+      const statusColor = statusColors[e.status] ?? chalk.white;
       console.log(`${chalk.bold(e.title.substring(0, 50).padEnd(50))} ${statusColor(e.status.padEnd(16))} ${e.grade ? `Grade: ${e.grade}` : ''}`);
       console.log(chalk.dim(`  ${e.url}`));
     }

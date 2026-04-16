@@ -1,10 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GigListing } from '../scrapers/base.js';
-import { getEnv } from '../utils/config.js';
-import { UpworkScraper } from '../scrapers/upwork.js';
-import { AirtaskerScraper } from '../scrapers/airtasker.js';
-import { FreelancerScraper } from '../scrapers/freelancer.js';
-import { detectPlatform } from '../utils/config.js';
+import { GigListing } from '../scrapers/base';
+import { getEnv } from '../utils/config';
+import { UpworkScraper } from '../scrapers/upwork';
+import { AirtaskerScraper } from '../scrapers/airtasker';
+import { FreelancerScraper } from '../scrapers/freelancer';
+import { detectPlatform } from '../utils/config';
 
 export interface ClientIntelResult {
   client_url: string;

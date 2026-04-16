@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { GigListing } from '../scrapers/base.js';
-import { EvaluationResult } from '../evaluator/evaluator.js';
+import { GigListing } from '../scrapers/base';
+import { EvaluationResult } from '../evaluator/evaluator';
 
 export type PipelineStatus =
   | 'discovered'

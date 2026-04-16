@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GigListing } from '../scrapers/base.js';
-import { UserProfile, getEnv } from '../utils/config.js';
-import { heuristicScore, EvaluationScore } from './scoring.js';
+import { GigListing } from '../scrapers/base';
+import { UserProfile, getEnv } from '../utils/config';
+import { heuristicScore, EvaluationScore } from './scoring';
 
 export interface EvaluationResult {
   listing: GigListing;
@@ -30,7 +30,7 @@ export async function evaluateGig(
   const prompt = buildEvaluationPrompt(listing, profile, heuristic);
 
   const response = await client.messages.create({
-    model: 'claude-opus-4-5',
+    model: process.env.GIGOPS_MODEL || 'claude-sonnet-4-20250514',
     max_tokens: 1500,
     messages: [{ role: 'user', content: prompt }],
   });

@@ -1,6 +1,6 @@
 import { Page } from 'playwright';
-import { BaseScraper, GigListing, ScraperResult, SearchConfig } from './base.js';
-import { newPage, sleep } from '../utils/browser.js';
+import { BaseScraper, GigListing, ScraperResult, SearchConfig } from './base';
+import { newPage, sleep } from '../utils/browser';
 
 export class UpworkScraper extends BaseScraper {
   platform = 'upwork';

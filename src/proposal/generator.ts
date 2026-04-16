@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GigListing } from '../scrapers/base.js';
-import { UserProfile, getEnv } from '../utils/config.js';
-import { EvaluationResult } from '../evaluator/evaluator.js';
+import { GigListing } from '../scrapers/base';
+import { UserProfile, getEnv } from '../utils/config';
+import { EvaluationResult } from '../evaluator/evaluator';
 
 export interface ProposalResult {
   listing: GigListing;

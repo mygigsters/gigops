@@ -1,4 +1,4 @@
-import { PipelineTracker, PipelineEntry } from './tracker.js';
+import { PipelineTracker, PipelineEntry } from './tracker';
 
 export interface IntegrityReport {
   total: number;
