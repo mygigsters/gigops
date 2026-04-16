@@ -2,14 +2,63 @@ import { Page } from 'playwright';
 import { BaseScraper, GigListing, ScraperResult, SearchConfig } from './base';
 import { newPage, sleep } from '../utils/browser';
 
+// ⚠️  CLOUDFLARE LIMITATION
+// Upwork uses Cloudflare bot protection. Headless browsers typically hit a
+// "Just a moment..." challenge page and receive no real content.
+// This scraper will detect the challenge and throw a clear error rather than
+// hanging or returning empty data.
+//
+// WORKAROUNDS (not yet implemented):
+//   1. Paste the raw HTML manually: gigops evaluate --html <file> --platform upwork
+//   2. Upwork RSS feeds (public, no auth): https://www.upwork.com/ab/feed/jobs/rss?q=...
+//   3. Upwork API (requires approved vendor status)
+//
+// The RSS feed approach is the most practical for automated use.
+
+const CLOUDFLARE_SIGNALS = [
+  'just a moment',
+  'checking your browser',
+  'enable javascript',
+  'cf-browser-verification',
+  'cf_clearance',
+  'cloudflare',
+  'ray id',
+];
+
+async function detectCloudflareChallenge(page: Page): Promise<boolean> {
+  const title = await page.title().catch(() => '');
+  const bodyText = await page.locator('body').innerText().catch(() => '');
+  const combined = (title + ' ' + bodyText).toLowerCase();
+  return CLOUDFLARE_SIGNALS.some((signal) => combined.includes(signal));
+}
+
+function throwCloudflareError(url: string): never {
+  throw new Error(
+    `Upwork blocked by Cloudflare bot protection.\n\n` +
+    `  URL: ${url}\n\n` +
+    `  Upwork uses Cloudflare to block headless browsers. GigOps cannot automatically\n` +
+    `  scrape Upwork listings at this time.\n\n` +
+    `  ALTERNATIVES:\n` +
+    `    • Use Upwork's RSS feed for job searches (no scraping required):\n` +
+    `      https://www.upwork.com/ab/feed/jobs/rss?q=<keywords>&sort=recency\n` +
+    `    • Copy the full page HTML and pass it via --html flag (coming soon)\n` +
+    `    • Apply directly on Upwork and paste the job description to evaluate\n\n` +
+    `  See README.md for more details on Upwork limitations.`
+  );
+}
+
 export class UpworkScraper extends BaseScraper {
   platform = 'upwork';
 
   async scrapeListingUrl(url: string): Promise<GigListing> {
     const page = await newPage();
     try {
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await sleep(2000);
+
+      if (await detectCloudflareChallenge(page)) {
+        throwCloudflareError(url);
+      }
 
       const title = await page.locator('h1, [data-test="job-title"]').first().innerText().catch(() => '');
       const description = await page
@@ -49,6 +98,15 @@ export class UpworkScraper extends BaseScraper {
         .innerText()
         .catch(() => undefined);
 
+      // Sanity check — if title is empty, page likely didn't load properly
+      if (!title) {
+        throw new Error(
+          `Could not extract job title from Upwork listing.\n` +
+          `The page may have loaded incorrectly or the layout has changed.\n` +
+          `URL: ${url}`
+        );
+      }
+
       return {
         id: this.generateId(url),
         url,
@@ -80,8 +138,12 @@ export class UpworkScraper extends BaseScraper {
       const query = [...config.keywords, ...(config.skills || [])].join(' ');
       const searchUrl = `https://www.upwork.com/search/jobs/?q=${encodeURIComponent(query)}&sort=recency`;
 
-      await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await sleep(3000);
+
+      if (await detectCloudflareChallenge(page)) {
+        throwCloudflareError(searchUrl);
+      }
 
       const jobCards = await page.locator('[data-test="job-tile"], .job-tile, article').all();
       const limit = config.limit ?? 20;
@@ -126,8 +188,12 @@ export class UpworkScraper extends BaseScraper {
   async scrapeClientProfile(clientUrl: string): Promise<GigListing['client']> {
     const page = await newPage();
     try {
-      await page.goto(clientUrl, { waitUntil: 'domcontentloaded' });
+      await page.goto(clientUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await sleep(2000);
+
+      if (await detectCloudflareChallenge(page)) {
+        throwCloudflareError(clientUrl);
+      }
 
       const name = await page.locator('h1, .profile-name').first().innerText().catch(() => undefined);
       const ratingText = await page.locator('.rating, [data-test="rating"]').first().innerText().catch(() => '');

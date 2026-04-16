@@ -62,6 +62,23 @@ npm install
 npx playwright install chromium
 ```
 
+### Build (recommended)
+
+> ⚡ **Always build before running.** Using `ts-node` directly (`npx ts-node src/index.ts`) can be OOM-killed on memory-constrained environments (VPS, CI). The compiled JS is lighter and faster.
+
+```bash
+npm run build
+# Output: dist/index.js and dist/**
+```
+
+After building, run via:
+
+```bash
+node dist/index.js <command>
+# or if installed globally / linked:
+gigops <command>
+```
+
 ### Configure
 
 ```bash
@@ -77,7 +94,9 @@ cp config/profile.example.yml config/profile.yml
 ### Validate setup
 
 ```bash
-npm run doctor
+npm run build          # compile TypeScript first
+node dist/index.js doctor
+# or: npm run doctor (uses ts-node, not recommended on low-memory hosts)
 ```
 
 ---
@@ -87,13 +106,17 @@ npm run doctor
 ### Evaluate a gig
 
 ```bash
-npx ts-node src/index.ts evaluate https://www.upwork.com/jobs/~01234
-# or after build:
-gigops evaluate https://www.upwork.com/jobs/~01234
+# Recommended (after npm run build):
+node dist/index.js evaluate https://www.upwork.com/jobs/~01234
 
 # Save to pipeline
-gigops evaluate <url> --save
+node dist/index.js evaluate <url> --save
+
+# Dev only (not recommended on low-memory hosts):
+npx ts-node src/index.ts evaluate https://www.upwork.com/jobs/~01234
 ```
+
+> ⚠️  **Upwork + Cloudflare:** Upwork blocks headless browsers via Cloudflare. Evaluating Upwork URLs will likely fail with a clear error message. See [Known Limitations](#known-limitations) below.
 
 **Output:**
 ```
@@ -186,11 +209,12 @@ Navigate your pipeline, see grades and status at a glance, drill into details.
 ## Batch Evaluation
 
 ```bash
-# Evaluate a list of URLs from a file
-npx ts-node scripts/batch.ts --file urls.txt --concurrency 3 --save
+# Recommended (after npm run build):
+node dist/index.js batch --file urls.txt --concurrency 3 --save
+node dist/index.js batch --urls "https://upwork.com/jobs/1,https://upwork.com/jobs/2"
 
-# Or inline
-npx ts-node scripts/batch.ts --urls "https://upwork.com/jobs/1,https://upwork.com/jobs/2"
+# Dev only (not recommended on low-memory hosts):
+npx ts-node scripts/batch.ts --file urls.txt --concurrency 3 --save
 ```
 
 ---
@@ -221,12 +245,46 @@ gigops/
 
 | Platform | Evaluate | Propose | Scan | Client Intel |
 |----------|----------|---------|------|--------------|
-| Upwork | ✅ | ✅ | ✅ | ✅ |
+| Upwork | ⚠️ CF | ⚠️ CF | ⚠️ CF | ⚠️ CF |
 | Airtasker | ✅ | ✅ | ✅ | ✅ |
 | Freelancer | ✅ | ✅ | ✅ | ✅ |
 | Other URLs | ✅ | ✅ | — | — |
 
+> ⚠️ **CF** = Upwork is blocked by Cloudflare bot protection. See [Known Limitations](#known-limitations).
+
 Want to add a platform? See [docs/adding-platforms.md](docs/adding-platforms.md).
+
+---
+
+## Known Limitations
+
+### Upwork — Cloudflare Bot Protection
+
+Upwork uses Cloudflare to block headless browsers. When you try to evaluate or scan an Upwork listing, you may see:
+
+```
+Error: Upwork blocked by Cloudflare bot protection.
+```
+
+**Workarounds:**
+
+1. **RSS feed** (best for automated scanning): Use Upwork's public RSS feed instead of scraping:
+   ```
+   https://www.upwork.com/ab/feed/jobs/rss?q=<keywords>&sort=recency
+   ```
+2. **Manual paste**: Copy the job description and evaluate it using your AI assistant directly.
+3. **Upwork API**: Requires Upwork vendor approval, but returns clean structured data.
+
+This is a known limitation of web scraping against Cloudflare-protected sites. No ETA for a fix — see [#upwork-cloudflare](https://github.com/mygigsters/gigops/issues) for updates.
+
+### ts-node OOM on Low-Memory Hosts
+
+`npx ts-node src/index.ts` compiles TypeScript in-memory, which can be killed by the OOM killer on VPS/cloud instances with ≤1GB RAM. Always build first:
+
+```bash
+npm run build
+node dist/index.js <command>
+```
 
 ---
 
