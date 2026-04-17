@@ -1,321 +1,95 @@
-<div align="center">
+<p align="center">
+  <h1 align="center">⚡ GigOps</h1>
+  <p align="center"><strong>AI for gig workers, not against them.</strong></p>
+</p>
 
-# ⚡ GigOps
-
-**AI-powered gig search command center for freelancers**
-
-*Companies use AI to filter gig workers. This gives gig workers AI to choose their gigs.*
-
-[![MIT License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org)
-[![Built by MyGigsters](https://img.shields.io/badge/Built%20by-MyGigsters-7C3AED.svg)](https://mygigsters.com.au)
-
-[Getting Started](#getting-started) · [Features](#features) · [Commands](#commands) · [Contributing](#contributing)
-
-</div>
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg" alt="Node.js >= 18">
+  <a href="https://github.com/nicepkg/gigops/stargazers"><img src="https://img.shields.io/github/stars/nicepkg/gigops?style=social" alt="GitHub Stars"></a>
+</p>
 
 ---
 
-Tired of spending hours evaluating gigs that turn out to be terrible fits? GigOps is a CLI tool that uses Claude AI to evaluate gig listings, score clients, generate tailored proposals, and track your pipeline — all from your terminal.
+Gig platforms use algorithms to decide what you see, what you earn, and who gets the job. **GigOps flips the script.** It gives freelancers the same AI-powered tools — evaluate gigs before you bid, generate winning proposals, scan for red flags, benchmark your rates, and research clients — all from the command line.
 
-> *"I did 19 different gigs before building a fintech for gig workers. This is the open-source tool I wish I had."*
-> — Benji Elengovan, CEO of [MyGigsters](https://mygigsters.com.au)
+No subscriptions. No lock-in. Runs locally. Your data stays yours.
 
----
-
-## Features
-
-### 🎯 Evaluate
-AI evaluates any gig URL against your profile using 6 weighted dimensions. Gets a letter grade (A–F) and tells you whether to apply, consider, or skip — in under 30 seconds.
-
-### 📝 Propose
-Generate a tailored, ready-to-paste proposal for any gig. Opens with something specific about their project (never "I saw your posting"). Under 300 words. Referenced to your real proof points.
-
-### 🔍 Scan
-Configure saved searches per platform. GigOps crawls Upwork, Airtasker, and Freelancer, filters by your criteria, and queues matches for evaluation.
-
-### 💰 Rate Check
-Market rate intelligence for any skill/location/experience combo. Know your worth before you bid.
-
-### 🕵️ Client Intel
-Scrape and analyse client profiles. Flag red flags: low ratings, unverified payments, scope creep patterns. Know who you're dealing with before you apply.
-
-### 📊 Pipeline
-Track everything in a single JSONL file. From discovery → proposal → won/lost. With integrity checks, deduplication, and a terminal dashboard.
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- [Anthropic API key](https://console.anthropic.com) (Claude)
-- Go 1.21+ (optional — for terminal dashboard)
-
-### Install
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/mygigsters/gigops.git
-cd gigops
-npm install
-npx playwright install chromium
+# Install
+npm install -g gigops
+
+# Configure your LLM provider (pick one)
+export ANTHROPIC_API_KEY="sk-..."   # Claude
+# or: export OPENAI_API_KEY="sk-..."
+# or: export GEMINI_API_KEY="..."
+# or: gigops config --provider ollama --model llama3
+
+# Evaluate your first gig
+gigops evaluate "https://www.airtasker.com/tasks/some-task-id"
+
+# Or scan a platform for opportunities
+gigops scan --platform airtasker --skills "web development, react"
 ```
 
-### Build (recommended)
+## 🛠 Features
 
-> ⚡ **Always build before running.** Using `ts-node` directly (`npx ts-node src/index.ts`) can be OOM-killed on memory-constrained environments (VPS, CI). The compiled JS is lighter and faster.
+| Command | What it does |
+|---------|-------------|
+| `gigops evaluate <url>` | AI analysis of a gig — worth your time? Red flags? Fair pay? |
+| `gigops propose <url>` | Generate a tailored proposal based on the gig + your profile |
+| `gigops scan` | Find and rank gigs matching your skills across platforms |
+| `gigops rate-check` | Benchmark your rates against market data for your skill set |
+| `gigops client-intel <url>` | Research a client — review history, payment patterns, red flags |
+| `gigops pipeline` | Manage your active gigs, bids, and pipeline in one view |
 
-```bash
-npm run build
-# Output: dist/index.js and dist/**
-```
+## 🌐 Supported Platforms
 
-After building, run via:
+| Platform | Status |
+|----------|--------|
+| **Airtasker** | ✅ Full support |
+| **Freelancer** | ✅ Full support |
+| **Upwork** | ✅ Full support |
+| **Any URL** | ✅ Generic scraper (paste any gig listing) |
 
-```bash
-node dist/index.js <command>
-# or if installed globally / linked:
-gigops <command>
-```
+> Want to add a platform? See [CONTRIBUTING.md](CONTRIBUTING.md) — new scrapers are a great first contribution.
 
-### Configure
+## 🤖 Supported LLM Providers
 
-```bash
-# Environment
-cp .env.example .env
-# Add your ANTHROPIC_API_KEY to .env
+| Provider | Models | Local? |
+|----------|--------|--------|
+| **Anthropic (Claude)** | Claude 3.5 Sonnet, Claude 3 Opus | No |
+| **OpenAI** | GPT-4o, GPT-4, GPT-3.5 | No |
+| **Google (Gemini)** | Gemini 1.5 Pro, Gemini 1.5 Flash | No |
+| **Ollama** | Llama 3, Mistral, any local model | ✅ Yes |
 
-# Profile (this is how GigOps knows who you are)
-cp config/profile.example.yml config/profile.yml
-# Edit with your skills, rates, and proof points
-```
+Configure with `gigops config --provider <name>` or set the relevant `*_API_KEY` environment variable.
 
-### Validate setup
+## 📊 How GigOps Compares
 
-```bash
-npm run build          # compile TypeScript first
-node dist/index.js doctor
-# or: npm run doctor (uses ts-node, not recommended on low-memory hosts)
-```
+| Feature | GigOps | GigRadar | Upwex | UpHunt | SolidGigs |
+|---------|--------|----------|-------|--------|-----------|
+| Open source | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Runs locally | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Multi-platform | ✅ | Upwork only | Upwork only | Upwork only | Curated list |
+| AI proposals | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Client research | ✅ | Basic | Basic | ✅ | ❌ |
+| Rate benchmarking | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Choose your LLM | ✅ | N/A | GPT only | N/A | N/A |
+| Free | ✅ | Freemium | Paid | Paid | Paid |
+| Privacy | Local-first | Cloud | Cloud | Cloud | Cloud |
 
----
+## 📖 Documentation
 
-## Commands
+- [Contributing Guide](CONTRIBUTING.md)
+- [License](LICENSE)
 
-### Evaluate a gig
+## 🤝 Contributing
 
-```bash
-# Recommended (after npm run build):
-node dist/index.js evaluate https://www.upwork.com/jobs/~01234
+We welcome contributions! Check out [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started. Good first issues are tagged — adding a new platform scraper is a great entry point.
 
-# Save to pipeline
-node dist/index.js evaluate <url> --save
+## 📄 License
 
-# Dev only (not recommended on low-memory hosts):
-npx ts-node src/index.ts evaluate https://www.upwork.com/jobs/~01234
-```
-
-> ⚠️  **Upwork + Cloudflare:** Upwork blocks headless browsers via Cloudflare. Evaluating Upwork URLs will likely fail with a clear error message. See [Known Limitations](#known-limitations) below.
-
-**Output:**
-```
-┌── React/Node API for SaaS App ──────────────────────────────────┐
-│                                                                  │
-│  Grade: A  Score: 4.4/5                                         │
-│                                                                  │
-│  Summary: Strong skill match for a Node.js API project...       │
-│                                                                  │
-│  ✓ Pros:                                                         │
-│    • All 4 primary skills match                                  │
-│    • Client has 4.9/5 rating, payment verified                   │
-│    • Only 3 proposals submitted — low competition               │
-│                                                                  │
-│  Recommendation: ✅ Apply                                        │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### Generate a proposal
-
-```bash
-gigops propose https://www.upwork.com/jobs/~01234
-gigops propose <url> --tone professional   # or conversational, concise
-```
-
-### Scan a platform
-
-```bash
-gigops scan --platform upwork --keywords "react,node.js" --limit 10
-gigops scan --platform airtasker --evaluate --save  # evaluate + save all
-```
-
-### Check market rates
-
-```bash
-gigops rate-check "React Developer" --location "Sydney, AU" --experience 5
-gigops rate-check "UI/UX Designer" --location "London, UK"
-```
-
-### Analyse a client
-
-```bash
-gigops client-intel https://www.upwork.com/companies/~01234567890
-gigops client https://www.airtasker.com/users/clientusername/
-```
-
-### Pipeline management
-
-```bash
-gigops pipeline list
-gigops pipeline list --status applied
-gigops pipeline update abc123 interviewing --notes "Good call, sending contract"
-gigops pipeline stats
-gigops pipeline check --fix  # deduplicate + normalize
-```
-
----
-
-## Scoring System
-
-GigOps evaluates every gig across 6 weighted dimensions:
-
-| Dimension       | Weight | What it measures                            |
-|-----------------|--------|---------------------------------------------|
-| Skill Match     | 25%    | Your skills vs gig requirements             |
-| Rate Fit        | 20%    | Budget vs your target/minimum rate          |
-| Client Quality  | 20%    | Client rating, reviews, payment verification|
-| Effort/Scope    | 15%    | Realistic time vs pay, scope red flags      |
-| Growth Value    | 10%    | Portfolio-worthy? New skills?               |
-| Win Probability | 10%    | Competition level, proposal count           |
-
-**Grades:** A (4.5–5.0), B (3.5–4.5), C (2.5–3.5), D (1.5–2.5), F (<1.5)
-
-**Rule:** GigOps only recommends applying to B+ (≥3.5). Life's too short for long shots.
-
----
-
-## Terminal Dashboard
-
-```bash
-cd dashboard
-go mod tidy
-go run main.go
-```
-
-Navigate your pipeline, see grades and status at a glance, drill into details.
-
----
-
-## Batch Evaluation
-
-```bash
-# Recommended (after npm run build):
-node dist/index.js batch --file urls.txt --concurrency 3 --save
-node dist/index.js batch --urls "https://upwork.com/jobs/1,https://upwork.com/jobs/2"
-
-# Dev only (not recommended on low-memory hosts):
-npx ts-node scripts/batch.ts --file urls.txt --concurrency 3 --save
-```
-
----
-
-## Project Structure
-
-```
-gigops/
-├── src/
-│   ├── index.ts           CLI entry point
-│   ├── scrapers/          Playwright scrapers (Upwork, Airtasker, Freelancer)
-│   ├── evaluator/         6-dimension scoring engine + AI evaluator
-│   ├── proposal/          Proposal generator
-│   ├── pipeline/          JSONL tracker + integrity checks
-│   ├── rate/              Market rate intelligence
-│   ├── client/            Client profile analysis
-│   └── utils/             Browser helpers, config loader
-├── dashboard/             Go bubbletea terminal dashboard
-├── scripts/               doctor.ts, batch.ts
-├── config/                Profile + platform configs (YAML)
-├── skills/                AI skill documentation
-└── templates/             Proposal templates, saved search examples
-```
-
----
-
-## Supported Platforms (v1)
-
-| Platform | Evaluate | Propose | Scan | Client Intel |
-|----------|----------|---------|------|--------------|
-| Upwork | ⚠️ CF | ⚠️ CF | ⚠️ CF | ⚠️ CF |
-| Airtasker | ✅ | ✅ | ✅ | ✅ |
-| Freelancer | ✅ | ✅ | ✅ | ✅ |
-| Other URLs | ✅ | ✅ | — | — |
-
-> ⚠️ **CF** = Upwork is blocked by Cloudflare bot protection. See [Known Limitations](#known-limitations).
-
-Want to add a platform? See [docs/adding-platforms.md](docs/adding-platforms.md).
-
----
-
-## Known Limitations
-
-### Upwork — Cloudflare Bot Protection
-
-Upwork uses Cloudflare to block headless browsers. When you try to evaluate or scan an Upwork listing, you may see:
-
-```
-Error: Upwork blocked by Cloudflare bot protection.
-```
-
-**Workarounds:**
-
-1. **RSS feed** (best for automated scanning): Use Upwork's public RSS feed instead of scraping:
-   ```
-   https://www.upwork.com/ab/feed/jobs/rss?q=<keywords>&sort=recency
-   ```
-2. **Manual paste**: Copy the job description and evaluate it using your AI assistant directly.
-3. **Upwork API**: Requires Upwork vendor approval, but returns clean structured data.
-
-This is a known limitation of web scraping against Cloudflare-protected sites. No ETA for a fix — see [#upwork-cloudflare](https://github.com/mygigsters/gigops/issues) for updates.
-
-### ts-node OOM on Low-Memory Hosts
-
-`npx ts-node src/index.ts` compiles TypeScript in-memory, which can be killed by the OOM killer on VPS/cloud instances with ≤1GB RAM. Always build first:
-
-```bash
-npm run build
-node dist/index.js <command>
-```
-
----
-
-## What GigOps Does NOT Do
-
-- **No auto-submitting proposals** — always human-in-the-loop. You review, you send.
-- **No official API integrations** — pure Playwright scraping (works even when APIs don't exist)
-- **No account credentials stored** — your login info never touches GigOps
-
----
-
-## Contributing
-
-PRs welcome! Priority areas:
-- New platform scrapers (Toptal, PeoplePerHour, Guru)
-- Improved selector accuracy (platform UIs change frequently)
-- Better scoring heuristics
-- Test coverage
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-## Built by MyGigsters
-
-[MyGigsters](https://mygigsters.com.au) is a fintech platform solving financial problems for gig workers — tax, super, insurance, and cash flow. GigOps is our contribution to the open-source gig economy community.
-
-Follow [@mygigsters](https://twitter.com/mygigsters) for updates.
-
----
-
-## License
-
-MIT © [MyGigsters Pty Ltd](https://mygigsters.com.au)
+[MIT](LICENSE) — use it, fork it, sell it, whatever. Just help freelancers win.
