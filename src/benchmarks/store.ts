@@ -7,8 +7,8 @@ import { readFileSync, appendFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { randomUUID } from 'node:crypto';
-import type { BenchmarkEntry, AnonymisedBenchmarkEntry } from './schema.js';
-import { anonymise } from './schema.js';
+import type { BenchmarkEntry, AnonymisedBenchmarkEntry } from './schema';
+import { anonymise } from './schema';
 
 const DATA_DIR = join(homedir(), '.gigops');
 const BENCHMARKS_FILE = join(DATA_DIR, 'benchmarks.jsonl');

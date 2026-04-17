@@ -3,7 +3,7 @@
  * Computes market intelligence from local (and eventually community) data.
  */
 
-import type { BenchmarkEntry } from './schema.js';
+import type { BenchmarkEntry } from './schema';
 
 export interface RateStats {
   count: number;

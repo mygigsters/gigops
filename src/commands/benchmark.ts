@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import { input, select } from '@inquirer/prompts';
-import { addEntry, loadAll, exportAnonymous } from '../benchmarks/store.js';
-import { personalStats, marketData } from '../benchmarks/aggregator.js';
+import { addEntry, loadAll, exportAnonymous } from '../benchmarks/store';
+import { personalStats, marketData } from '../benchmarks/aggregator';
 import { writeFileSync } from 'node:fs';
-import type { GigOutcome, GigDurationEstimate } from '../benchmarks/schema.js';
+import type { GigOutcome, GigDurationEstimate } from '../benchmarks/schema';
 
 export function benchmarkCommand(): Command {
   const cmd = new Command('benchmark')

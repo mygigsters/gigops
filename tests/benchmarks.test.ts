@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { anonymise, type BenchmarkEntry } from '../src/benchmarks/schema.js';
-import { addEntry, loadAll, exportAnonymous } from '../src/benchmarks/store.js';
-import { personalStats, marketData } from '../src/benchmarks/aggregator.js';
+import { anonymise, type BenchmarkEntry } from '../src/benchmarks/schema';
+import { addEntry, loadAll, exportAnonymous } from '../src/benchmarks/store';
+import { personalStats, marketData } from '../src/benchmarks/aggregator';
 
 function makeTempFile(): string {
   const dir = mkdtempSync(join(tmpdir(), 'gigops-test-'));

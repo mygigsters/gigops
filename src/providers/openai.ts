@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import type { LLMProvider, CompletionOptions, CompletionResult } from "./types.js";
+import type { LLMProvider, CompletionOptions, CompletionResult } from "./types";
 
 const DEFAULT_MODEL = "gpt-4o";
 

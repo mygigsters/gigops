@@ -1,3 +1,3 @@
-export * from './schema.js';
-export * from './store.js';
-export * from './aggregator.js';
+export * from './schema';
+export * from './store';
+export * from './aggregator';

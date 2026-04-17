@@ -1,5 +1,5 @@
 import { Ollama } from "ollama";
-import type { LLMProvider, CompletionOptions, CompletionResult } from "./types.js";
+import type { LLMProvider, CompletionOptions, CompletionResult } from "./types";
 
 const DEFAULT_MODEL = "llama3";
 

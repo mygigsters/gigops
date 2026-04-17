@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { createProvider, resetProvider, getProvider } from "../index.js";
-import type { ProviderName } from "../index.js";
+import { describe, it, expect, beforeEach } from "@jest/globals";
+import { createProvider, resetProvider, getProvider } from "../index";
+import type { ProviderName } from "../index";
 
 describe("createProvider", () => {
   beforeEach(() => resetProvider());

@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { LLMProvider, CompletionOptions, CompletionResult } from "./types.js";
+import type { LLMProvider, CompletionOptions, CompletionResult } from "./types";
 
 const DEFAULT_MODEL = "claude-sonnet-4-20250514";
 

@@ -1,14 +1,14 @@
-export type { LLMProvider, CompletionOptions, CompletionResult } from "./types.js";
-export { AnthropicProvider } from "./anthropic.js";
-export { OpenAIProvider } from "./openai.js";
-export { GeminiProvider } from "./gemini.js";
-export { OllamaProvider } from "./ollama.js";
+export type { LLMProvider, CompletionOptions, CompletionResult } from "./types";
+export { AnthropicProvider } from "./anthropic";
+export { OpenAIProvider } from "./openai";
+export { GeminiProvider } from "./gemini";
+export { OllamaProvider } from "./ollama";
 
-import type { LLMProvider } from "./types.js";
-import { AnthropicProvider } from "./anthropic.js";
-import { OpenAIProvider } from "./openai.js";
-import { GeminiProvider } from "./gemini.js";
-import { OllamaProvider } from "./ollama.js";
+import type { LLMProvider } from "./types";
+import { AnthropicProvider } from "./anthropic";
+import { OpenAIProvider } from "./openai";
+import { GeminiProvider } from "./gemini";
+import { OllamaProvider } from "./ollama";
 
 export type ProviderName = "anthropic" | "openai" | "gemini" | "ollama";
 

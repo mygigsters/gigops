@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { LLMProvider, CompletionOptions, CompletionResult } from "./types.js";
+import type { LLMProvider, CompletionOptions, CompletionResult } from "./types";
 
 const DEFAULT_MODEL = "gemini-2.0-flash";
 
