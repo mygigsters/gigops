@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/mygigsters/gigops#readme",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.24.0",
+    "@anthropic-ai/sdk": "^0.90.0",
     "@google/generative-ai": "^0.24.1",
     "@inquirer/prompts": "^8.4.1",
     "boxen": "^7.1.1",
