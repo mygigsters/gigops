@@ -7,3 +7,6 @@ pipeline/*.jsonl
 *.log
 .DS_Store
 dashboard/gigops-dashboard
+
+coverage/
+.env.local

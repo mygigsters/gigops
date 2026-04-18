@@ -69,5 +69,15 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/mygigsters/gigops/issues"
+  },
+  "files": [
+    "dist/",
+    "config/",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ]
 }

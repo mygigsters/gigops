@@ -1,9 +1,43 @@
 import { Command } from 'commander';
-import { input, select } from '@inquirer/prompts';
-import { addEntry, loadAll, exportAnonymous } from '../benchmarks/store';
-import { personalStats, marketData } from '../benchmarks/aggregator';
+import { input, select, confirm } from '@inquirer/prompts';
+import { addEntry, loadAll, exportAnonymous } from '../benchmarks/store.js';
+import { personalStats, marketData } from '../benchmarks/aggregator.js';
+import { loadConfig, saveConfig } from '../config.js';
+import { queueAnonymousEntry } from '../benchmarks/anonymous-queue.js';
 import { writeFileSync } from 'node:fs';
-import type { GigOutcome, GigDurationEstimate } from '../benchmarks/schema';
+import type { GigOutcome, GigDurationEstimate } from '../benchmarks/schema.js';
+
+/**
+ * Check if the user has been asked about anonymous data sharing.
+ * If not, prompt them. Returns whether sharing is enabled.
+ */
+export async function ensureDataSharingConsent(configPath?: string): Promise<boolean> {
+  const config = loadConfig(configPath);
+
+  // Already answered — respect their choice
+  if (typeof config.shareAnonymousData === 'boolean') {
+    return config.shareAnonymousData;
+  }
+
+  // First time — ask
+  const answer = await confirm({
+    message:
+      'Would you like to share anonymous rate benchmarks with the GigOps community?\n' +
+      '  This helps all gig workers understand fair rates. No personal info is shared. (y/n)',
+    default: false,
+  });
+
+  saveConfig({ shareAnonymousData: answer }, configPath);
+  if (answer) {
+    console.log('🤝 Thanks! Anonymous benchmarks will be queued locally for community sharing.');
+    console.log('   Change anytime: gigops config set shareAnonymousData false');
+  } else {
+    console.log('👍 No problem. Your data stays completely private.');
+    console.log('   Change anytime: gigops config set shareAnonymousData true');
+  }
+
+  return answer;
+}
 
 export function benchmarkCommand(): Command {
   const cmd = new Command('benchmark')
@@ -64,6 +98,13 @@ export function benchmarkCommand(): Command {
 
       console.log(`\n✅ Benchmark logged: ${entry.id}`);
       console.log(`   ${platform} / ${skill_category} / ${outcome} @ ${currency} ${rate_bid}`);
+
+      // Check consent and queue anonymous data if opted in
+      const sharingEnabled = await ensureDataSharingConsent();
+      if (sharingEnabled) {
+        queueAnonymousEntry(entry);
+        console.log('   📤 Anonymous data queued for community sharing.');
+      }
     });
 
   cmd

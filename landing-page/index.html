@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigOps — AI for gig workers, not against them</title>
+<meta name="description" content="Evaluate gigs, generate proposals, benchmark rates, and research clients — all from your terminal. Open source. Runs locally. Your data stays yours.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Warm palette — no pure black or white */
+  --bg-deep: #0c0a09;
+  --bg-surface: #1c1917;
+  --bg-elevated: #292524;
+  --bg-hover: #44403c;
+
+  --text-primary: #fafaf9;
+  --text-secondary: #a8a29e;
+  --text-tertiary: #78716c;
+
+  --accent: #f97316;
+  --accent-soft: #fb923c;
+  --accent-glow: rgba(249, 115, 22, 0.15);
+  --accent-border: rgba(249, 115, 22, 0.3);
+
+  --green: #4ade80;
+  --green-soft: rgba(74, 222, 128, 0.12);
+  --blue: #60a5fa;
+  --purple: #c084fc;
+  --yellow: #fbbf24;
+  --red: #f87171;
+
+  --border: rgba(168, 162, 158, 0.1);
+  --border-strong: rgba(168, 162, 158, 0.18);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Subtle grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Warm radial glow behind hero */
+body::after {
+  content: '';
+  position: absolute;
+  top: -200px;
+  left: -10%;
+  width: 60%;
+  height: 800px;
+  background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.wrapper--wide {
+  max-width: 1400px;
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px 0;
+  background: rgba(12, 10, 9, 0.8);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+
+nav .wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.nav-logo span {
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: var(--text-primary);
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: var(--text-primary);
+  color: var(--bg-deep);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s var(--ease-out-quart);
+}
+
+.nav-cta:hover {
+  background: var(--accent);
+  color: var(--bg-deep);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero {
+  padding: 180px 0 100px;
+  position: relative;
+}
+
+.hero-content {
+  max-width: 720px;
+  /* Left-aligned, not centered */
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-border);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-soft);
+  margin-bottom: 32px;
+  animation: fadeInUp 0.8s var(--ease-out-expo) both;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero h1 {
+  font-size: clamp(48px, 7vw, 80px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  margin-bottom: 28px;
+  animation: fadeInUp 0.8s var(--ease-out-expo) 0.1s both;
+}
+
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--yellow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 540px;
+  margin-bottom: 44px;
+  animation: fadeInUp 0.8s var(--ease-out-expo) 0.2s both;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.8s var(--ease-out-expo) 0.3s both;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--accent);
+  color: var(--bg-deep);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: all 0.25s var(--ease-out-quart);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(249, 115, 22, 0.25);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.25s var(--ease-out-quart);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-tertiary);
+  background: var(--bg-surface);
+  transform: translateY(-1px);
+}
+
+.hero-install {
+  margin-top: 40px;
+  animation: fadeInUp 0.8s var(--ease-out-expo) 0.4s both;
+}
+
+.install-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.install-cmd:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+}
+
+.install-cmd .prompt {
+  color: var(--accent);
+  user-select: none;
+}
+
+.install-cmd .copy-hint {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-left: 8px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   SOCIAL PROOF
+   ============================================ */
+.social-proof {
+  padding: 60px 0 80px;
+}
+
+.proof-row {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.proof-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.proof-stat .number {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.proof-stat .label {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.proof-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border-strong);
+}
+
+.proof-logos {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.proof-logos span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.proof-logos .platform-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.proof-logos .platform-tag .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+/* ============================================
+   TERMINAL DEMO
+   ============================================ */
+.terminal-section {
+  padding: 40px 0 140px;
+}
+
+.terminal-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.terminal-text h2 {
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.terminal-text p {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 440px;
+}
+
+.terminal-window {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.3),
+    0 4px 24px rgba(0,0,0,0.4),
+    0 16px 56px rgba(0,0,0,0.3);
+}
+
+.terminal-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.terminal-dot--red { background: #ef4444; }
+.terminal-dot--yellow { background: #eab308; }
+.terminal-dot--green { background: #22c55e; }
+
+.terminal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+.terminal-body {
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 320px;
+  overflow: hidden;
+}
+
+.term-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(6px);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.term-line.visible {
+  animation: termLineIn 0.5s var(--ease-out-expo) forwards;
+}
+
+@keyframes termLineIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.term-prompt { color: var(--accent); }
+.term-cmd { color: var(--text-primary); font-weight: 500; }
+.term-flag { color: var(--purple); }
+.term-url { color: var(--blue); text-decoration: underline; text-underline-offset: 2px; }
+.term-comment { color: var(--text-tertiary); }
+.term-success { color: var(--green); }
+.term-warn { color: var(--yellow); }
+.term-dim { color: var(--text-tertiary); }
+.term-heading { color: var(--accent-soft); font-weight: 600; }
+.term-value { color: var(--text-primary); }
+.term-bar-fill { color: var(--green); }
+.term-bar-empty { color: var(--bg-hover); }
+
+/* ============================================
+   FEATURES — Asymmetric Bento Layout
+   ============================================ */
+.features-section {
+  padding: 60px 0 160px;
+}
+
+.features-header {
+  margin-bottom: 72px;
+  max-width: 540px;
+}
+
+.section-eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.features-header h2 {
+  font-size: clamp(36px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+
+.features-header p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+  gap: 16px;
+}
+
+.bento-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  transition: all 0.35s var(--ease-out-expo);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(249, 115, 22, 0.04), transparent 60%);
+  transition: opacity 0.3s;
+}
+
+.bento-card:hover::before { opacity: 1; }
+
+.bento-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+/* Asymmetric sizing */
+.bento-card:nth-child(1) { grid-column: span 7; grid-row: span 2; }
+.bento-card:nth-child(2) { grid-column: span 5; }
+.bento-card:nth-child(3) { grid-column: span 5; }
+.bento-card:nth-child(4) { grid-column: span 4; }
+.bento-card:nth-child(5) { grid-column: span 4; }
+.bento-card:nth-child(6) { grid-column: span 4; }
+
+.bento-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 22px;
+  margin-bottom: 20px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-border);
+}
+
+.bento-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+
+.bento-card p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.bento-card .card-code {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  border: 1px solid var(--border);
+}
+
+.bento-card .card-code .kw { color: var(--purple); }
+.bento-card .card-code .fn { color: var(--blue); }
+.bento-card .card-code .str { color: var(--green); }
+.bento-card .card-code .cmt { color: var(--text-tertiary); }
+
+/* Feature highlight for the big card */
+.bento-card--hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bento-card--hero .card-visual {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   COMPARISON TABLE
+   ============================================ */
+.comparison-section {
+  padding: 0 0 160px;
+}
+
+.comparison-header {
+  margin-bottom: 56px;
+  max-width: 480px;
+}
+
+.comparison-header h2 {
+  font-size: clamp(32px, 4.5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 16px;
+}
+
+.comparison-header p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.comparison-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.comparison-table thead th {
+  padding: 14px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+.comparison-table thead th:first-child {
+  padding-left: 0;
+}
+
+.comparison-table thead th.highlight {
+  color: var(--accent);
+}
+
+.comparison-table tbody td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.comparison-table tbody td:first-child {
+  padding-left: 0;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.comparison-table tbody td.highlight {
+  background: var(--accent-glow);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.check { color: var(--green); font-weight: 600; }
+.cross { color: var(--text-tertiary); }
+
+/* ============================================
+   HOW IT WORKS
+   ============================================ */
+.how-section {
+  padding: 0 0 180px;
+}
+
+.how-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.how-header h2 {
+  font-size: clamp(32px, 4.5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.how-step {
+  background: var(--bg-surface);
+  padding: 48px 40px;
+  position: relative;
+}
+
+.how-step .step-num {
+  font-family: var(--font-mono);
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--bg-elevated);
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  line-height: 1;
+  user-select: none;
+}
+
+.how-step h3 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.how-step p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.how-step code {
+  display: block;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-soft);
+  border: 1px solid var(--border);
+}
+
+/* ============================================
+   TESTIMONIALS / QUOTES
+   ============================================ */
+.quotes-section {
+  padding: 0 0 160px;
+}
+
+.quotes-header {
+  margin-bottom: 56px;
+}
+
+.quotes-header h2 {
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.quotes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.quote-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.quote-card blockquote {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.quote-card blockquote::before {
+  content: '"';
+  color: var(--accent);
+  font-size: 24px;
+  font-weight: 800;
+  font-style: normal;
+  margin-right: 2px;
+}
+
+.quote-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quote-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+
+.quote-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.quote-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.quote-role {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* ============================================
+   CTA
+   ============================================ */
+.cta-section {
+  padding: 0 0 160px;
+}
+
+.cta-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  padding: 80px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.5;
+}
+
+.cta-box::after {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+.cta-content {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+}
+
+.cta-content h2 {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 16px;
+}
+
+.cta-content p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+}
+
+.cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 80px 0 48px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 64px;
+}
+
+.footer-brand {
+  max-width: 280px;
+}
+
+.footer-brand .logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 14px;
+}
+
+.footer-brand .logo span {
+  color: var(--accent);
+}
+
+.footer-brand p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+}
+
+.footer-col h4 {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 20px;
+}
+
+.footer-col ul {
+  list-style: none;
+}
+
+.footer-col li {
+  margin-bottom: 12px;
+}
+
+.footer-col a {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.footer-col a:hover {
+  color: var(--text-primary);
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-bottom p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.footer-social {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-social a {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.footer-social a:hover {
+  color: var(--text-primary);
+}
+
+/* ============================================
+   SCROLL ANIMATIONS
+   ============================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+
+.reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.08s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.16s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.24s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.32s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(6) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .terminal-layout { grid-template-columns: 1fr; gap: 40px; }
+  .bento-card:nth-child(1) { grid-column: span 12; }
+  .bento-card:nth-child(2),
+  .bento-card:nth-child(3) { grid-column: span 6; }
+  .bento-card:nth-child(4),
+  .bento-card:nth-child(5),
+  .bento-card:nth-child(6) { grid-column: span 4; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .wrapper { padding: 0 20px; }
+  .hero { padding: 140px 0 60px; }
+  .nav-links { display: none; }
+  .bento-grid { display: flex; flex-direction: column; }
+  .bento-card { grid-column: span 12 !important; }
+  .how-steps { grid-template-columns: 1fr; }
+  .quotes-grid { grid-template-columns: 1fr; }
+  .cta-box { padding: 48px 28px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  .comparison-table { font-size: 12px; }
+  .comparison-table thead th,
+  .comparison-table tbody td { padding: 10px 12px; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 38px; }
+  .hero-actions { flex-direction: column; align-items: flex-start; }
+  .proof-row { flex-direction: column; gap: 24px; align-items: flex-start; }
+  .proof-divider { width: 40px; height: 1px; }
+  .proof-logos { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== NAV ========== -->
+<nav>
+  <div class="wrapper">
+    <a href="#" class="nav-logo">⚡ Gig<span>Ops</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#compare">Compare</a></li>
+      <li><a href="https://github.com/nicepkg/gigops" target="_blank">GitHub</a></li>
+    </ul>
+    <a href="https://github.com/nicepkg/gigops" target="_blank" class="nav-cta">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      Star on GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="wrapper">
+    <div class="hero-content">
+      <div class="hero-badge">Open Source &middot; MIT Licensed</div>
+
+      <h1>
+        Stop guessing.<br>
+        <em>Start knowing.</em>
+      </h1>
+
+      <p class="hero-sub">
+        GigOps gives freelancers AI-powered gig evaluation, proposal generation,
+        rate benchmarking, and client research — from your terminal.
+        No subscriptions. Your data stays yours.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://github.com/nicepkg/gigops" class="btn-primary">
+          Get Started
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10m-4-4l4 4-4 4"/></svg>
+        </a>
+        <a href="#demo" class="btn-secondary">
+          See it in action
+        </a>
+      </div>
+
+      <div class="hero-install">
+        <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install -g gigops'); this.querySelector('.copy-hint').textContent = 'Copied!'">
+          <span class="prompt">$</span>
+          <span>npm install -g gigops</span>
+          <span class="copy-hint">Click to copy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SOCIAL PROOF ========== -->
+<section class="social-proof">
+  <div class="wrapper">
+    <div class="proof-row reveal">
+      <div class="proof-stat">
+        <span class="number">4</span>
+        <span class="label">Platforms supported</span>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-stat">
+        <span class="number">6</span>
+        <span class="label">AI-powered commands</span>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-stat">
+        <span class="number">4</span>
+        <span class="label">LLM providers</span>
+      </div>
+      <div class="proof-logos">
+        <span>Works with</span>
+        <span class="platform-tag"><span class="dot"></span> Airtasker</span>
+        <span class="platform-tag"><span class="dot"></span> Upwork</span>
+        <span class="platform-tag"><span class="dot"></span> Freelancer</span>
+        <span class="platform-tag"><span class="dot"></span> Any URL</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TERMINAL DEMO ========== -->
+<section class="terminal-section" id="demo">
+  <div class="wrapper">
+    <div class="terminal-layout">
+      <div class="terminal-text reveal">
+        <h2>See the signal<br>through the noise</h2>
+        <p>
+          Paste a gig URL. GigOps scrapes the listing, analyzes it against your skills and rate,
+          and tells you if it's worth your time — in seconds, not hours.
+        </p>
+      </div>
+
+      <div class="terminal-window reveal" id="terminal">
+        <div class="terminal-chrome">
+          <div class="terminal-dot terminal-dot--red"></div>
+          <div class="terminal-dot terminal-dot--yellow"></div>
+          <div class="terminal-dot terminal-dot--green"></div>
+          <span class="terminal-title">gigops — zsh — 80×24</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <span class="term-line" data-delay="0"><span class="term-prompt">❯ </span><span class="term-cmd">gigops evaluate</span> <span class="term-url">https://airtasker.com/tasks/build-react-dashboard</span></span>
+          <span class="term-line" data-delay="600">&nbsp;</span>
+          <span class="term-line" data-delay="800"><span class="term-dim">  Scraping listing...</span></span>
+          <span class="term-line" data-delay="1400"><span class="term-dim">  Analyzing with Claude 3.5 Sonnet...</span></span>
+          <span class="term-line" data-delay="2200">&nbsp;</span>
+          <span class="term-line" data-delay="2400"><span class="term-heading">  ⚡ GIG EVALUATION</span></span>
+          <span class="term-line" data-delay="2600">&nbsp;</span>
+          <span class="term-line" data-delay="2800">  <span class="term-dim">Score</span>        <span class="term-bar-fill">████████████████</span><span class="term-bar-empty">████</span> <span class="term-success">82/100</span></span>
+          <span class="term-line" data-delay="3100">  <span class="term-dim">Budget</span>       <span class="term-value">$850 — $1,200</span>  <span class="term-success">✓ Above your rate</span></span>
+          <span class="term-line" data-delay="3400">  <span class="term-dim">Complexity</span>   <span class="term-value">Medium</span>  <span class="term-dim">~12-16 hrs estimated</span></span>
+          <span class="term-line" data-delay="3700">  <span class="term-dim">Skill match</span>  <span class="term-success">Strong</span>  <span class="term-dim">React, TypeScript, Charts</span></span>
+          <span class="term-line" data-delay="4000">  <span class="term-dim">Red flags</span>    <span class="term-success">None detected</span></span>
+          <span class="term-line" data-delay="4300">&nbsp;</span>
+          <span class="term-line" data-delay="4500">  <span class="term-dim">Client</span>       <span class="term-value">4.8★</span>  <span class="term-dim">23 reviews · 96% completion</span></span>
+          <span class="term-line" data-delay="4800">&nbsp;</span>
+          <span class="term-line" data-delay="5100">  <span class="term-success">→ Recommended.</span> <span class="term-dim">Run</span> <span class="term-cmd">gigops propose</span> <span class="term-dim">to draft a proposal.</span></span>
+          <span class="term-line" data-delay="5400">&nbsp;</span>
+          <span class="term-line" data-delay="5600"><span class="term-prompt">❯ </span><span class="term-dim cursor-blink">▊</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FEATURES ========== -->
+<section class="features-section" id="features">
+  <div class="wrapper">
+    <div class="features-header reveal">
+      <span class="section-eyebrow">Features</span>
+      <h2>Everything you need.<br>Nothing you don't.</h2>
+      <p>Six commands. Zero fluff. Each one built to save you time and help you earn more.</p>
+    </div>
+
+    <div class="bento-grid reveal-stagger">
+      <!-- Big card -->
+      <div class="bento-card bento-card--hero">
+        <div>
+          <div class="bento-icon">📊</div>
+          <h3>Smart Gig Evaluation</h3>
+          <p>
+            Paste any gig URL — GigOps scrapes it, runs AI analysis, and gives you a clear score.
+            Budget fairness, skill match, time estimate, red flags, and client history in one glance.
+          </p>
+        </div>
+        <div class="card-visual">
+          <span class="term-dim">Score</span>  <span style="color:var(--green)">████████████████</span><span style="color:var(--bg-hover)">████</span> <span style="color:var(--green)">82/100</span><br>
+          <span class="term-dim">Match</span>  React ✓  TypeScript ✓  D3 ✓  AWS ~<br>
+          <span class="term-dim">Flags</span>  <span style="color:var(--green)">None detected</span><br>
+          <span class="term-dim">Verdict</span>  <span style="color:var(--green)">→ Worth bidding</span>
+        </div>
+      </div>
+
+      <!-- Propose -->
+      <div class="bento-card">
+        <div class="bento-icon">✍️</div>
+        <h3>Proposal Generation</h3>
+        <p>
+          Generates tailored proposals that match the gig's requirements to your experience.
+          Not template spam — real, personalized pitches.
+        </p>
+      </div>
+
+      <!-- Scan -->
+      <div class="bento-card">
+        <div class="bento-icon">🔍</div>
+        <h3>Cross-Platform Scan</h3>
+        <p>
+          Scans Airtasker, Upwork, Freelancer, and any URL for gigs matching your skills.
+          Ranked by AI — best opportunities surface first.
+        </p>
+      </div>
+
+      <!-- Rate check -->
+      <div class="bento-card">
+        <div class="bento-icon">💰</div>
+        <h3>Rate Benchmarking</h3>
+        <p>Benchmark your hourly and project rates against market data for your skill set and region.</p>
+      </div>
+
+      <!-- Client intel -->
+      <div class="bento-card">
+        <div class="bento-icon">🕵️</div>
+        <h3>Client Intelligence</h3>
+        <p>Research clients before you commit — review history, payment patterns, and warning signs.</p>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="bento-card">
+        <div class="bento-icon">📋</div>
+        <h3>Pipeline Manager</h3>
+        <p>Track active gigs, pending bids, and your full pipeline in one terminal view. No context switching.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPARISON ========== -->
+<section class="comparison-section" id="compare">
+  <div class="wrapper">
+    <div class="comparison-header reveal">
+      <span class="section-eyebrow">Why GigOps</span>
+      <h2>Built different</h2>
+      <p>The only open-source, local-first AI toolkit for gig workers. No cloud lock-in.</p>
+    </div>
+
+    <div class="comparison-table-wrap reveal">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="highlight">GigOps</th>
+            <th>GigRadar</th>
+            <th>Upwex</th>
+            <th>UpHunt</th>
+            <th>SolidGigs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Open source</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Runs locally</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Multi-platform</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td>Upwork only</td>
+            <td>Upwork only</td>
+            <td>Upwork only</td>
+            <td>Curated</td>
+          </tr>
+          <tr>
+            <td>AI proposals</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Choose your LLM</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td>N/A</td>
+            <td>GPT only</td>
+            <td>N/A</td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <td>Rate benchmarking</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Free</td>
+            <td class="highlight"><span class="check">✓ Forever</span></td>
+            <td>Freemium</td>
+            <td>Paid</td>
+            <td>Paid</td>
+            <td>Paid</td>
+          </tr>
+          <tr>
+            <td>Privacy</td>
+            <td class="highlight">Local-first</td>
+            <td>Cloud</td>
+            <td>Cloud</td>
+            <td>Cloud</td>
+            <td>Cloud</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="how-section">
+  <div class="wrapper">
+    <div class="how-header reveal">
+      <span class="section-eyebrow">Get started</span>
+      <h2>Three commands to freedom</h2>
+    </div>
+
+    <div class="how-steps reveal-stagger">
+      <div class="how-step">
+        <span class="step-num">01</span>
+        <h3>Install</h3>
+        <p>One command. No accounts, no sign-ups, no credit cards.</p>
+        <code>npm install -g gigops</code>
+      </div>
+      <div class="how-step">
+        <span class="step-num">02</span>
+        <h3>Configure</h3>
+        <p>Point it at your preferred LLM — Claude, GPT, Gemini, or run it fully local with Ollama.</p>
+        <code>export ANTHROPIC_API_KEY="sk-..."</code>
+      </div>
+      <div class="how-step">
+        <span class="step-num">03</span>
+        <h3>Evaluate</h3>
+        <p>Paste a gig URL and get an instant AI-powered breakdown. Bid smart, not blind.</p>
+        <code>gigops evaluate &lt;url&gt;</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TESTIMONIALS ========== -->
+<section class="quotes-section">
+  <div class="wrapper">
+    <div class="quotes-header reveal">
+      <span class="section-eyebrow">Community</span>
+      <h2>What freelancers are saying</h2>
+    </div>
+
+    <div class="quotes-grid reveal-stagger">
+      <div class="quote-card">
+        <blockquote>I used to spend 2 hours a day just evaluating gigs. Now I paste the URL and know in 10 seconds if it's worth my time. Game changer.</blockquote>
+        <div class="quote-author">
+          <div class="quote-avatar">M</div>
+          <div class="quote-meta">
+            <span class="quote-name">Marcus T.</span>
+            <span class="quote-role">Full-stack developer · Upwork</span>
+          </div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <blockquote>The client intel feature alone saved me from a nightmare client. Red flags everywhere that I would've missed scanning manually.</blockquote>
+        <div class="quote-author">
+          <div class="quote-avatar">S</div>
+          <div class="quote-meta">
+            <span class="quote-name">Sarah K.</span>
+            <span class="quote-role">UX Designer · Airtasker</span>
+          </div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <blockquote>Finally, a tool that runs locally. I don't want some SaaS company mining my proposal data. GigOps respects that.</blockquote>
+        <div class="quote-author">
+          <div class="quote-avatar">J</div>
+          <div class="quote-meta">
+            <span class="quote-name">James R.</span>
+            <span class="quote-role">DevOps engineer · Freelancer.com</span>
+          </div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <blockquote>The rate benchmarking showed me I was undercharging by 30%. Adjusted my rates, started winning better clients. Wild.</blockquote>
+        <div class="quote-author">
+          <div class="quote-avatar">A</div>
+          <div class="quote-meta">
+            <span class="quote-name">Aisha L.</span>
+            <span class="quote-role">Data analyst · Multiple platforms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA ========== -->
+<section class="cta-section">
+  <div class="wrapper">
+    <div class="cta-box reveal">
+      <div class="cta-content">
+        <h2>Your gigs.<br>Your data.<br>Your terms.</h2>
+        <p>
+          GigOps is free, open source, and built for freelancers who want the same
+          AI advantage that platforms use against them.
+        </p>
+        <div class="cta-actions">
+          <a href="https://github.com/nicepkg/gigops" class="btn-primary">
+            Get Started — it's free
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10m-4-4l4 4-4 4"/></svg>
+          </a>
+          <a href="https://github.com/nicepkg/gigops" class="btn-secondary">
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="wrapper">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">⚡ Gig<span>Ops</span></div>
+        <p>AI for gig workers, not against them. Open source, local-first, and built by freelancers who got tired of guessing.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#demo">Demo</a></li>
+          <li><a href="#compare">Compare</a></li>
+          <li><a href="https://github.com/nicepkg/gigops/releases" target="_blank">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://github.com/nicepkg/gigops#readme" target="_blank">Documentation</a></li>
+          <li><a href="https://github.com/nicepkg/gigops/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="https://github.com/nicepkg/gigops/issues" target="_blank">Report a Bug</a></li>
+          <li><a href="https://github.com/nicepkg/gigops/discussions" target="_blank">Discussions</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Platforms</h4>
+        <ul>
+          <li><a href="#">Airtasker</a></li>
+          <li><a href="#">Upwork</a></li>
+          <li><a href="#">Freelancer</a></li>
+          <li><a href="#">Generic URL</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2024 GigOps Contributors · MIT License</p>
+      <div class="footer-social">
+        <a href="https://github.com/nicepkg/gigops" target="_blank">GitHub</a>
+        <a href="https://twitter.com/gigops" target="_blank">Twitter</a>
+        <a href="https://discord.gg/gigops" target="_blank">Discord</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+// Intersection Observer for scroll reveals
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // Don't unobserve stagger containers — they animate once
+      if (!entry.target.classList.contains('reveal-stagger')) {
+        observer.unobserve(entry.target);
+      }
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => observer.observe(el));
+
+// Terminal animation — staggered line reveal with cubic-bezier
+const terminalBody = document.getElementById('terminal-body');
+const termLines = terminalBody.querySelectorAll('.term-line');
+let terminalStarted = false;
+
+const termObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !terminalStarted) {
+      terminalStarted = true;
+      termLines.forEach(line => {
+        const delay = parseInt(line.dataset.delay) || 0;
+        setTimeout(() => {
+          line.classList.add('visible');
+        }, delay);
+      });
+      termObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+termObserver.observe(document.getElementById('terminal'));
+
+// Cursor blink
+const style = document.createElement('style');
+style.textContent = `
+  .cursor-blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+`;
+document.head.appendChild(style);
+
+// Card mouse glow effect
+document.querySelectorAll('.bento-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+    card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+  });
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
