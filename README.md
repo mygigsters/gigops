@@ -6,6 +6,8 @@
     <a href="https://github.com/mygigsters/gigops/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
     <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg" alt="Node.js 18+">
   </p>
+  <br>
+  <img src="demo/gigops-demo.gif" alt="GigOps Demo" width="700">
 </p>
 
 <p align="center">
