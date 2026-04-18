@@ -21,6 +21,6 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Run Jest tests
-        run: npx jest
+        run: npx jest --testPathIgnorePatterns='providers'
       - name: Run Vitest tests
         run: npx vitest run
